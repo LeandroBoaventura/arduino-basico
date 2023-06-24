@@ -1,31 +1,33 @@
 #include <pulsoUltraSonico.h>
 #include <SPI.h>
 #include <SD.h>
+
 #define PIN_TRIG 8
 #define PIN_ECHO 7
+#define PIN_SD_SELECT 4
 #define INTERVALO 10000
-uint32_t previcaoTempo = 0;
 
-const int chipSelect = 4;
+uint32_t previcaoTempo = 0;
 
 pulsoUltraSonico Sensor(PIN_TRIG, PIN_ECHO);
 
 void setup(void)
 {
   Serial.begin(9600);
-
   Serial.print("Initializing SD card...");
 
-  if (!SD.begin(chipSelect)) {
+  if (SD.begin(PIN_SD_SELECT) == false)
+  {
     Serial.println("Card failed, or not present");
 
     while (1);
   }
+
   Serial.println("card initialized.");
 }
+
 void loop(void)
 {
-
   float distancia = Sensor.getDistancia();
   String distanciaString = String(distancia);
 
@@ -33,7 +35,7 @@ void loop(void)
   Serial.println(distancia);
 
   uint32_t tempoAtual = millis();
-  if (tempoAtual - previcaoTempo >= INTERVALO)
+  if ((tempoAtual - previcaoTempo) >= INTERVALO)
   {
     previcaoTempo = tempoAtual;
 
@@ -44,10 +46,10 @@ void loop(void)
     dataFile.close();
     Serial.println("Gravando no Cartao");
   }
-  else {
+  else
+  {
     Serial.println("aguardando o tempo de gravacao");
   }
 
   delay(1000);
-
 }
